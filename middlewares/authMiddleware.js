@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken");
 const { Auth, Blacklist } = require("../models/authsModel");
-const { subAdmins } = require("../models/AdminRole");
 
 
 require("dotenv").config();
@@ -18,7 +17,7 @@ const authMiddleware = async (req, res, next) => {
 		}
 
 		const decoded = jwt.verify(token, process.env.JWT_SECRET);
-		const user = await subAdmins.findById(decoded._id);
+		const user = await Auth.findById(decoded._id);
 
 		if (!user) {
 			return res.status(401).json({ result: false, msg: "Invalid token" });
