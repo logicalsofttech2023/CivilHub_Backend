@@ -1,0 +1,313 @@
+const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
+const {
+  Auth
+} = require("../models/authsModel");
+const {
+} = require("../models/adminModel");
+const {
+  FourtFolio,
+  Project
+} = require("../models/companyModel");
+
+require("dotenv").config();
+
+const CompanygetProfile = async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({
+        result: false,
+        msg: "Parameter required: userId",
+      });
+    }
+
+    const company = await Auth.findById(userId).select(
+      "first_name last_name email mobile profile_image banner_image username rating address latitude longitude about_company links"
+    );
+
+    if (!company) {
+      return res.status(404).json({
+        result: false,
+        msg: "Company profile not found",
+      });
+    }
+
+  
+    const profileFields = {
+      first_name: company.first_name,
+      last_name: company.last_name,
+      email: company.email,
+      mobile: company.mobile,
+      profile_image: company.profile_image,
+      banner_image: company.banner_image,
+      username: company.username,
+      rating: company.rating,
+      address: company.address,
+      latitude: company.latitude,
+      longitude: company.longitude,
+      about_company: company.about_company,
+      links: company.links && company.links.length > 0 ? company.links : null,
+    };
+
+   
+    const totalFields = Object.keys(profileFields).length;
+    const filledFields = Object.values(profileFields).filter(
+      (value) => value !== undefined && value !== null && value !== "" && value !== 0
+    ).length;
+
+    const profilePercentage = Math.round((filledFields / totalFields) * 100);
+
+    return res.status(200).json({
+      result: true,
+      msg: "Company profile fetched successfully",
+      data: {
+        profile_percentage: profilePercentage + "%", 
+        userId: company._id || "",
+        first_name: company.first_name || "",
+        last_name: company.last_name || "",
+        email: company.email || "",
+        mobile: company.mobile || "",
+        profile_image: company.profile_image || "",
+        banner_image: company.banner_image || "",
+        username: company.username || "",
+        rating: company.rating || 0,
+        address: company.address || "",
+        lat: company.latitude || "",
+        long: company.longitude || "",
+        about: company.about_company || "",
+        company_links: company.links || [],
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+
+
+const addPortfolio = async (req, res) => {
+  try {
+    const { userId, name } = req.body;
+    const image = req.files?.image ? req.files.image[0].filename : null;
+    if (!userId || !name || !image) {
+      return res.status(400).json({ result: false, msg: "userId, name and image are required" });
+    }
+
+    const newData = new FourtFolio({
+      userId,
+      name,
+      image,
+    });
+
+    await newData.save();
+
+    return res.status(200).json({
+      result: true,
+      msg: "Portfolio added successfully",
+      data: newData
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      result: false,
+      msg: "Something went wrong",
+      error: error.message
+    });
+  }
+};
+
+const companyfortfoliosList = async (req, res) => {
+  try {
+    const { userId } = req.body;
+
+    if (!userId) {
+      return res.status(400).json({
+        result: false,
+        msg: "Parameter required: userId",
+      });
+    }
+
+    const Fortfolio = await FourtFolio.find({ userId });
+
+    if (!Fortfolio) {
+      return res.status(404).json({
+        result: false,
+        msg: "Fortfolio not found",
+      });
+    }
+
+    return res.status(200).json({
+      result: true,
+      msg: "Fortfolio fetched successfully",
+      data: {
+        Fortfolio,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Something went wrong",
+      error: error.message,
+    });
+  }
+};
+
+
+const updatePortfolio = async (req, res) => {
+  try {
+    const { userId, name } = req.body;
+    const image = req.files?.image ? req.files.image[0].filename : null;
+
+    if (!userId || !name) {
+      return res.status(400).json({ result: false, msg: "userId and name, image are required" });
+    }
+
+    const updateData = { name };
+    if (image) updateData.image = image;
+
+    const updated = await FourtFolio.findOneAndUpdate(
+      { userId },
+      updateData,
+      { new: true }
+    );
+
+    if (!updated) {
+      return res.status(404).json({ result: false, msg: "Portfolio not found" });
+    }
+
+    return res.status(200).json({
+      result: true,
+      msg: "Portfolio updated successfully",
+      data: updated
+    });
+
+  } catch (error) {
+    return res.status(500).json({
+      result: false,
+      msg: "Something went wrong",
+      error: error.message
+    });
+  }
+};
+
+
+const createPostprojectComapny = async (req, res) => {
+  try {
+    const { userID, catID, project_name, project_description, experience, budget_type, min_budget, mxn_budget, skills } = req.body;
+
+    if (!userID || !catID || !project_name) {
+      return res.status(400).json({ result: false, msg: "userID,catID,project_name,project_description,experience,budget_type,min_budget,mxn_budget,skills,fileattach is required" });
+    }
+    const skillsArray = skills ? skills.split(",").map(skill => skill.trim()) : [];
+
+    const fileattach = req.files ? req.files.map(file => file.filename).join(",") : null;
+
+    const newProject = new Project({
+      userID,
+      catID,
+      project_name,
+      project_description,
+      experience,
+      budget_type,
+      min_budget,
+      mxn_budget,
+      skills: skillsArray,
+      fileattach
+    });
+
+    await newProject.save();
+
+    res.status(201).json({
+      result: true,
+      msg: "Company Project Posted Successfully",
+      data: newProject
+    });
+
+  } catch (error) {
+    res.status(500).json({ result: false, msg: "Error posting Project", error: error.message });
+  }
+};
+
+const createPostjobComapny = async (req, res) => {
+  try {
+    const { userID, catID, job_title, job_type, job_description, job_responsibilities, work_location_type, location, min_salary, mxn_salary, education, english, experience, skills } = req.body;
+
+    if (!userID || !catID || !job_title || !job_type || !job_description) {
+      return res.status(400).json({ result: false, msg: "UserID,catID,job_title,job_type,job_description,job_responsibilities,work_location_type,location,min_salary,mxn_salary,education,english,experience,skills is required" });
+    }
+    const skillsArray = skills ? skills.split(",").map(skill => skill.trim()) : [];
+
+    // const fileattach = req.files ? req.files.map(file => file.filename).join(",") : null;
+
+    const newJob = new Job({
+      userID,
+      catID,
+      job_title,
+      job_type,
+      job_description,
+      job_responsibilities,
+      work_location_type,
+      location,
+      min_salary,
+      mxn_salary,
+      education,
+      english,
+      experience,
+      skills: skillsArray
+    });
+
+    await newJob.save();
+
+    res.status(201).json({
+      result: true,
+      msg: "Company Job Posted Successfully",
+      data: newJob
+    });
+
+  } catch (error) {
+    res.status(500).json({ result: false, msg: "Error posting job", error: error.message });
+  }
+};
+
+const AlljobcategoryFatchuser = async (req, res) => {
+  try {
+    const fatchcatejob = await Cate_job.find().sort({ _id: -1 });
+
+    if (!fatchcatejob || fatchcatejob.length === 0) {
+      return res.status(200).json({
+        result: false,
+        msg: "No job categories found!",
+        data: [],
+      });
+    }
+
+    res.status(200).json({
+      result: true,
+      msg: "All Job Category List",
+      data: fatchcatejob,
+    });
+
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Server Error!",
+      error: error.message,
+    });
+  }
+};
+
+
+module.exports = {
+  CompanygetProfile,
+  addPortfolio,
+  companyfortfoliosList,
+  updatePortfolio,
+  createPostprojectComapny,
+  createPostjobComapny
+};

@@ -1,0 +1,42 @@
+const express = require("express");
+const freelancerController = require("../controllers/freelancerController");
+const upload = require("../middlewares/uploadMiddleware");
+const authenticateToken = require("../middlewares/authMiddleware");
+
+const router = express.Router();
+
+router.post("/add_fortfolio_freelancer",upload.array("image",10),authenticateToken,freelancerController.addPortfoliofreelancer);
+router.post("/freelancer_profile",authenticateToken,freelancerController.freelancergetProfile);
+router.post("/freelancer_header_update",upload.fields([{ name: "profile_image", maxCount: 1 }]),authenticateToken,freelancerController.freelancerHeaderUpdate);
+router.post("/freelancer_description_update",authenticateToken,freelancerController.freelancerDescriptionUpdate);
+router.post("/freelancer_resume_update",upload.array("resume_file",10), authenticateToken,freelancerController.freelancerresumeUpdate);
+router.post("/freelancer_skill_update",authenticateToken,freelancerController.freelancerskillsUpdate);
+router.post("/freelancer_education_update",authenticateToken,freelancerController.freelancerupdateEducation);
+router.post("/freelancer_language_update",authenticateToken,freelancerController.freelancerslanguageUpdate);
+router.post("/freelancer_emp_histo_update",authenticateToken,freelancerController.freelancerupdateEmploymentHistory);
+router.get("/freelancer_terms",freelancerController.getTermsconditionFreelancer);
+router.get("/freelancer_privacy",freelancerController.getprivacyFreelancer);
+router.get("/freelancer_faq",freelancerController.getfaqFreelancer);
+router.post("/freelancer_company_project_list",authenticateToken,freelancerController.freelancergetprojectList);
+router.post("/freelancer_company_job_list",authenticateToken,freelancerController.freelancergetjobList);
+router.get("/all_freelancer_banner",authenticateToken,freelancerController.AllfreelancerbanneryFatch);
+router.post("/freelancer_apply_job",upload.array("fileattach_apply",1),authenticateToken,freelancerController.FreelancerApplyjob);
+router.post("/freelancer_apply_project",upload.array("fileattach_apply",10),authenticateToken,freelancerController.FreelancerApplyprojects);
+router.post("/freelancer_job_favorite",authenticateToken,freelancerController.freelancerjobaddtoFavorite);
+router.post("/freelancer_project_favorite",authenticateToken,freelancerController.freelancerprojectaddtoFavorite);
+router.post("/freelancer_portfolio_list",authenticateToken,freelancerController.freelancerfoliosList);
+router.post("/freelancer_portfolio_delete",authenticateToken,freelancerController.FreelancerportfolioDelete);
+router.post("/freelancerongoing_project",authenticateToken,freelancerController.freelancerongoingProject);
+router.post("/freelancer_apply_project_list",authenticateToken,freelancerController.freelancerapplyprojectList);
+router.post("/freelancer_apply_job_list",authenticateToken,freelancerController.freelancerapplyjobList);
+router.post("/freelancer_category_project_list",authenticateToken,freelancerController.freelancergetcategoryprojectList);
+router.post("/freelancer_category_job_list",authenticateToken,freelancerController.freelancergetCategoryjobList);
+router.post("/add_freelancer_transaction",authenticateToken,freelancerController.addfreelancerTransaction);
+router.post("/get_freelancer_transaction",authenticateToken,freelancerController.getfreelancerTransaction);
+router.get("/all_main_power_cate",freelancerController.AllcategorymainPower);
+router.post("/main_power_sub_cate",freelancerController.SubcategoryListmainPower);
+router.get("/get_freelancer_headline",freelancerController.getfreelancerHeadline);
+router.get("/get_freelancer_benefit",freelancerController.getfreelancerBenefit);
+router.get("/get_freelancer_work",freelancerController.getfreelancerWork);
+
+module.exports = router;
