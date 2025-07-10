@@ -153,10 +153,10 @@ router.post("/add_freelancer_headline",upload.fields([{name: "image", maxCount: 
 router.post("/add_business_headline",upload.fields([{name: "image", maxCount: 1}]),authenticateToken,adminController.AddBusinessHeadline);
 router.post("/add_company_headline",upload.fields([{name: "image", maxCount: 1}]),authenticateToken,adminController.AddCompanyHeadline);
 router.post("/add_individual_headline",upload.fields([{name: "image", maxCount: 1}]),authenticateToken,adminController.AddIndividualHeadline);
-router.post("/add_freelancer_benefit",authenticateToken,adminController.AddFreelancerBenefit);
-router.post("/add_business_benefit",authenticateToken,adminController.AddBusinessBenefit);
-router.post("/add_company_benefit",authenticateToken,adminController.AddCompanyBenefit);
-router.post("/add_individual_benefit",authenticateToken,adminController.AddIndividualBenefit);
+router.post("/add_freelancer_benefit",upload.fields([{name: "image", maxCount: 1}]),authenticateToken,adminController.AddFreelancerBenefit);
+router.post("/add_business_benefit",upload.fields([{name: "image", maxCount: 1}]),authenticateToken,adminController.AddBusinessBenefit);
+router.post("/add_company_benefit",upload.fields([{name: "image", maxCount: 1}]),authenticateToken,adminController.AddCompanyBenefit);
+router.post("/add_individual_benefit",upload.fields([{name: "image", maxCount: 1}]),authenticateToken,adminController.AddIndividualBenefit);
 router.post("/add_freelancer_work",authenticateToken,adminController.AddFreelancerWork);
 
 // Admin Role Management
@@ -166,12 +166,63 @@ router.get("/getRoleById", authenticateToken, adminController.getRoleById);
 router.post("/updateRole", authenticateToken, adminController.updateRole);
 router.post("/deleteRole", authenticateToken, adminController.deleteRole);
 
-router.post("/createSubAdmin", authenticateToken, adminController.registerAdmin);
+router.post("/createSubAdmin", adminController.registerAdmin);
 router.post("/loginAdmin", adminController.loginAdmin);
 router.get("/getAllAdmins", authenticateToken, adminController.getAllAdmins);
 router.get("/getAdminById", authenticateToken, adminController.getAdminById);
 router.post("/updateAdmin", authenticateToken, adminController.updateAdmin);
 router.post("/deleteAdmin", authenticateToken, adminController.deleteAdmin);
+
+router.get("/GetFreelancerHeadline", authenticateToken, adminController.GetFreelancerHeadline);
+router.get("/GetBusinessHeadline", authenticateToken, adminController.GetBusinessHeadline);
+router.get("/GetCompanyHeadline", authenticateToken, adminController.GetCompanyHeadline);
+router.get("/GetIndividualHeadline", authenticateToken, adminController.GetIndividualHeadline);
+
+router.post("/AddOrUpdateFreelancerHeadline", upload.fields([{name: "image", maxCount: 1}]), authenticateToken, adminController.AddOrUpdateFreelancerHeadline);
+router.post("/AddOrUpdateBusinessHeadline", upload.fields([{name: "image", maxCount: 1}]), authenticateToken, adminController.AddOrUpdateBusinessHeadline);
+router.post("/AddOrUpdateCompanyHeadline", upload.fields([{name: "image", maxCount: 1}]), authenticateToken, adminController.AddOrUpdateCompanyHeadline);
+router.post("/AddOrUpdateIndividualHeadline", upload.fields([{name: "image", maxCount: 1}]), authenticateToken, adminController.AddOrUpdateIndividualHeadline);
+
+
+router.get("/getAllFreelancerBenefits", authenticateToken, adminController.getAllFreelancerBenefits);
+router.get("/getAllBusinessBenefits", authenticateToken, adminController.getAllBusinessBenefits);
+router.get("/getAllCompanyBenefits", authenticateToken, adminController.getAllCompanyBenefits);
+router.get("/getAllIndividualBenefits", authenticateToken, adminController.getAllIndividualBenefits);
+
+router.get("/getFreelancerBenefitById", authenticateToken, adminController.getFreelancerBenefitById);
+router.get("/getBusinessBenefitById", authenticateToken, adminController.getBusinessBenefitById);
+router.get("/getCompanyBenefitById", authenticateToken, adminController.getCompanyBenefitById);
+router.get("/getIndividualBenefitById", authenticateToken, adminController.getIndividualBenefitById);
+
+router.post("/updateFreelancerBenefit",upload.fields([{name: "image", maxCount: 1}]), authenticateToken, adminController.updateFreelancerBenefit);
+router.post("/updateBusinessBenefit", upload.fields([{name: "image", maxCount: 1}]), authenticateToken, adminController.updateBusinessBenefit);
+router.post("/updateCompanyBenefit", upload.fields([{name: "image", maxCount: 1}]), authenticateToken, adminController.updateCompanyBenefit);
+router.post("/updateIndividualBenefit", upload.fields([{name: "image", maxCount: 1}]), authenticateToken, adminController.updateIndividualBenefit);
+
+router.post("/deleteFreelancerBenefit", authenticateToken, adminController.deleteFreelancerBenefit);
+router.post("/deleteBusinessBenefit", authenticateToken, adminController.deleteBusinessBenefit);
+router.post("/deleteCompanyBenefit", authenticateToken, adminController.deleteCompanyBenefit);
+router.post("/deleteIndividualBenefit", authenticateToken, adminController.deleteIndividualBenefit);
+
+
+router.post("/updateTopFreelancerStatus", authenticateToken, adminController.updateTopFreelancerStatus);
+
+
+router.post("/CreateJobPositionCategory", authenticateToken, adminController.CreateJobPositionCategory);
+router.get("/GetAllJobPositionCategory", authenticateToken, adminController.getAllJobPositionCategory);
+router.post("/UpdateJobPositionCategory", authenticateToken, adminController.UpdateJobPositionCategory);
+router.post("/DeleteJobPositionCategory", authenticateToken, adminController.DeleteJobPositionCategory);
+router.get("/JobPositionCategoryDetails", adminController.JobPositionCategoryDetails);
+
+
+router.post("/CreateJobPositionSubCategory", authenticateToken, adminController.CreateJobPositionSubCategory);
+router.get("/GetAllJobPositionSubCategory", authenticateToken, adminController.getAllJobPositionSubCategory);
+router.post("/UpdateJobPositionSubCategory", authenticateToken, adminController.UpdateJobPositionSubCategory);
+router.post("/DeleteJobPositionSubCategory", authenticateToken, adminController.DeleteJobPositionSubCategory);
+router.get("/JobPositionSubCategoryDetails", authenticateToken, adminController.JobPositionSubCategoryDetails);
+
+
+
 
 
 

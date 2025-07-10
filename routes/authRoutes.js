@@ -26,4 +26,7 @@ router.post("/user_account_closed",authenticateToken,authController.freelancercl
 router.post("/user_notification",authenticateToken,authController.getUserNotifications);
 router.post("/blogs_details",authController.AllblogsFatchDetails);
 
+router.get("/getAllTopFreelancers",authController.getAllTopFreelancers);
+
+
 module.exports = router;

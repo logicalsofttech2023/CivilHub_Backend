@@ -37,6 +37,8 @@ const {
   CompanyBenefit,
   IndividualBenefit,
   FreelancerWork,
+  jobPositionCategory,
+  jobPositionSubCategory,
 } = require("../models/adminModel");
 const {
   Business_Product,
@@ -46,6 +48,7 @@ const {
 const { Auth } = require("../models/authsModel");
 const { Job } = require("../models/companyModel");
 const { subAdmins, adminRoles } = require("../models/AdminRole");
+const CryptoJS = require("crypto-js");
 
 require("dotenv").config();
 
@@ -76,7 +79,7 @@ const getAboutUS = async (req, res) => {
 
 const updateAboutUS = async (req, res) => {
   try {
-    const { aboutId } = req.params;
+    const { aboutId } = req.query;
     const { title, description, type } = req.body;
 
     if (!aboutId) {
@@ -142,7 +145,7 @@ const getTermscondition = async (req, res) => {
 
 const updateTermscondition = async (req, res) => {
   try {
-    const { termsId } = req.params;
+    const { termsId } = req.query;
     const { title, description, type } = req.body;
 
     if (!termsId) {
@@ -209,7 +212,7 @@ const getprivacyPolicy = async (req, res) => {
 
 const updateprivacyPolicy = async (req, res) => {
   try {
-    const { privacyId } = req.params;
+    const { privacyId } = req.query;
     const { title, description, type } = req.body;
 
     if (!privacyId) {
@@ -277,7 +280,7 @@ const getfaqlist = async (req, res) => {
 
 const updatefaqs = async (req, res) => {
   try {
-    const { faqId } = req.params;
+    const { faqId } = req.query;
     const { title, description, type } = req.body;
 
     if (!faqId) {
@@ -703,7 +706,7 @@ const AdmincategoryUpdate = async (req, res) => {
 
 const AdmincategoryFreelancerDetails = async (req, res) => {
   try {
-    const { categoryId } = req.params;
+    const { categoryId } = req.query;
 
     if (!categoryId) {
       return res.status(400).json({
@@ -911,7 +914,7 @@ const AdminSubcategoryDelete = async (req, res) => {
 
 const AdmincategoryDetails = async (req, res) => {
   try {
-    const { categoryId } = req.params;
+    const { categoryId } = req.query;
 
     if (!categoryId) {
       return res.status(400).json({
@@ -944,7 +947,7 @@ const AdmincategoryDetails = async (req, res) => {
 
 const AdminSubcategorydetails = async (req, res) => {
   try {
-    const { subcatId } = req.params;
+    const { subcatId } = req.query;
 
     if (!subcatId) {
       return res.status(400).json({
@@ -981,7 +984,7 @@ const AdminSubcategorydetails = async (req, res) => {
 
 const AdminjobcategoryDetails = async (req, res) => {
   try {
-    const { jobcategoryId } = req.params;
+    const { jobcategoryId } = req.query;
 
     if (!jobcategoryId) {
       return res.status(400).json({
@@ -1112,7 +1115,7 @@ const AlljobcategoryFatch = async (req, res) => {
 
 const AdminbannerDetails = async (req, res) => {
   try {
-    const { bannerId } = req.params;
+    const { bannerId } = req.query;
 
     if (!bannerId) {
       return res.status(400).json({
@@ -3908,6 +3911,318 @@ const AddFreelancerHeadline = async (req, res) => {
   }
 };
 
+// suraj
+
+const GetFreelancerHeadline = async (req, res) => {
+  try {
+    const headlineData = await FreelancerHeadline.findOne();
+    if (!headlineData) {
+      return res
+        .status(404)
+        .json({ result: false, msg: "Freelancer Headline not found" });
+    }
+    res.status(200).json({
+      result: true,
+      msg: "Freelancer Headline fetched successfully",
+      data: headlineData,
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error fetching freelancer headline",
+      error: error.message,
+    });
+  }
+};
+
+const GetBusinessHeadline = async (req, res) => {
+  try {
+    const headlineData = await BusinessHeadline.findOne();
+    if (!headlineData) {
+      return res
+        .status(404)
+        .json({ result: false, msg: "Business Headline not found" });
+    }
+    res.status(200).json({
+      result: true,
+      msg: "Business Headline fetched successfully",
+      data: headlineData,
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error fetching business headline",
+      error: error.message,
+    });
+  }
+};
+
+const GetCompanyHeadline = async (req, res) => {
+  try {
+    const headlineData = await CompanyHeadline.findOne();
+    if (!headlineData) {
+      return res
+        .status(404)
+        .json({ result: false, msg: "Company Headline not found" });
+    }
+    res.status(200).json({
+      result: true,
+      msg: "Company Headline fetched successfully",
+      data: headlineData,
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error fetching company headline",
+      error: error.message,
+    });
+  }
+};
+
+const GetIndividualHeadline = async (req, res) => {
+  try {
+    const headlineData = await IndividualHeadline.findOne();
+    if (!headlineData) {
+      return res
+        .status(404)
+        .json({ result: false, msg: "Individual Headline not found" });
+    }
+    res.status(200).json({
+      result: true,
+      msg: "Individual Headline fetched successfully",
+      data: headlineData,
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error fetching individual headline",
+      error: error.message,
+    });
+  }
+};
+
+const AddOrUpdateFreelancerHeadline = async (req, res) => {
+  try {
+    const { headline, subheadline } = req.body;
+
+    const image =
+      req.files && req.files.image ? req.files.image[0].filename : null;
+
+    if (!headline || !subheadline) {
+      return res.status(400).json({
+        result: false,
+        msg: "Parameters required: headline, subheadline, image",
+      });
+    }
+
+    // Check if a headline already exists
+    let existing = await FreelancerHeadline.findOne();
+
+    if (existing) {
+      // Update existing
+      existing.headline = headline;
+      existing.subheadline = subheadline;
+      if (image) existing.image = image;
+
+      await existing.save();
+
+      return res.status(200).json({
+        result: true,
+        msg: "Freelancer Headline updated successfully",
+        data: existing,
+      });
+    } else {
+      // Create new
+      const newHeadline = new FreelancerHeadline({
+        headline,
+        subheadline,
+        image,
+      });
+
+      await newHeadline.save();
+
+      return res.status(200).json({
+        result: true,
+        msg: "Freelancer Headline added successfully",
+        data: newHeadline,
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      result: false,
+      msg: "Error processing freelancer headline",
+      error: error.message,
+    });
+  }
+};
+
+const AddOrUpdateBusinessHeadline = async (req, res) => {
+  try {
+    const { headline, subheadline } = req.body;
+
+    const image =
+      req.files && req.files.image ? req.files.image[0].filename : null;
+
+    if (!headline || !subheadline) {
+      return res.status(400).json({
+        result: false,
+        msg: "Parameters required: headline, subheadline, image",
+      });
+    }
+
+    // Check if a headline already exists
+    let existing = await BusinessHeadline.findOne();
+
+    if (existing) {
+      // Update existing
+      existing.headline = headline;
+      existing.subheadline = subheadline;
+      if (image) existing.image = image;
+
+      await existing.save();
+
+      return res.status(200).json({
+        result: true,
+        msg: "Business Headline updated successfully",
+        data: existing,
+      });
+    } else {
+      // Create new
+      const newHeadline = new BusinessHeadline({
+        headline,
+        subheadline,
+        image,
+      });
+
+      await newHeadline.save();
+
+      return res.status(200).json({
+        result: true,
+        msg: "Business Headline added successfully",
+        data: newHeadline,
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      result: false,
+      msg: "Error processing Business headline",
+      error: error.message,
+    });
+  }
+};
+
+const AddOrUpdateCompanyHeadline = async (req, res) => {
+  try {
+    const { headline, subheadline } = req.body;
+
+    const image =
+      req.files && req.files.image ? req.files.image[0].filename : null;
+
+    if (!headline || !subheadline) {
+      return res.status(400).json({
+        result: false,
+        msg: "Parameters required: headline, subheadline, image",
+      });
+    }
+
+    // Check if a headline already exists
+    let existing = await CompanyHeadline.findOne();
+
+    if (existing) {
+      // Update existing
+      existing.headline = headline;
+      existing.subheadline = subheadline;
+      if (image) existing.image = image;
+
+      await existing.save();
+
+      return res.status(200).json({
+        result: true,
+        msg: "Company Headline updated successfully",
+        data: existing,
+      });
+    } else {
+      // Create new
+      const newHeadline = new CompanyHeadline({
+        headline,
+        subheadline,
+        image,
+      });
+
+      await newHeadline.save();
+
+      return res.status(200).json({
+        result: true,
+        msg: "Company Headline added successfully",
+        data: newHeadline,
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      result: false,
+      msg: "Error processing Company headline",
+      error: error.message,
+    });
+  }
+};
+
+const AddOrUpdateIndividualHeadline = async (req, res) => {
+  try {
+    const { headline, subheadline } = req.body;
+
+    const image =
+      req.files && req.files.image ? req.files.image[0].filename : null;
+
+    if (!headline || !subheadline) {
+      return res.status(400).json({
+        result: false,
+        msg: "Parameters required: headline, subheadline, image",
+      });
+    }
+
+    // Check if a headline already exists
+    let existing = await IndividualHeadline.findOne();
+
+    if (existing) {
+      // Update existing
+      existing.headline = headline;
+      existing.subheadline = subheadline;
+      if (image) existing.image = image;
+
+      await existing.save();
+
+      return res.status(200).json({
+        result: true,
+        msg: "Individual Headline updated successfully",
+        data: existing,
+      });
+    } else {
+      // Create new
+      const newHeadline = new IndividualHeadline({
+        headline,
+        subheadline,
+        image,
+      });
+
+      await newHeadline.save();
+
+      return res.status(200).json({
+        result: true,
+        msg: "Individual Headline added successfully",
+        data: newHeadline,
+      });
+    }
+  } catch (error) {
+    return res.status(500).json({
+      result: false,
+      msg: "Error processing Business headline",
+      error: error.message,
+    });
+  }
+};
+
+// suraj
+
 const AddBusinessHeadline = async (req, res) => {
   try {
     const { headline, subheadline } = req.body;
@@ -4016,6 +4331,8 @@ const AddIndividualHeadline = async (req, res) => {
 const AddFreelancerBenefit = async (req, res) => {
   try {
     const { title, description } = req.body;
+    const icon =
+      req.files && req.files.image ? req.files.image[0].filename : null;
 
     if (!title || !description) {
       return res.status(400).json({
@@ -4027,6 +4344,7 @@ const AddFreelancerBenefit = async (req, res) => {
     const bann = new FreelancerBenefit({
       title,
       description,
+      icon,
     });
 
     await bann.save();
@@ -4048,6 +4366,8 @@ const AddFreelancerBenefit = async (req, res) => {
 const AddBusinessBenefit = async (req, res) => {
   try {
     const { title, description } = req.body;
+    const icon =
+      req.files && req.files.image ? req.files.image[0].filename : null;
 
     if (!title || !description) {
       return res.status(400).json({
@@ -4059,6 +4379,7 @@ const AddBusinessBenefit = async (req, res) => {
     const bann = new BusinessBenefit({
       title,
       description,
+      icon,
     });
 
     await bann.save();
@@ -4080,6 +4401,8 @@ const AddBusinessBenefit = async (req, res) => {
 const AddCompanyBenefit = async (req, res) => {
   try {
     const { title, description } = req.body;
+    const icon =
+      req.files && req.files.image ? req.files.image[0].filename : null;
 
     if (!title || !description) {
       return res.status(400).json({
@@ -4091,6 +4414,7 @@ const AddCompanyBenefit = async (req, res) => {
     const bann = new CompanyBenefit({
       title,
       description,
+      icon,
     });
 
     await bann.save();
@@ -4112,6 +4436,8 @@ const AddCompanyBenefit = async (req, res) => {
 const AddIndividualBenefit = async (req, res) => {
   try {
     const { title, description } = req.body;
+    const icon =
+      req.files && req.files.image ? req.files.image[0].filename : null;
 
     if (!title || !description) {
       return res.status(400).json({
@@ -4123,6 +4449,7 @@ const AddIndividualBenefit = async (req, res) => {
     const bann = new IndividualBenefit({
       title,
       description,
+      icon,
     });
 
     await bann.save();
@@ -4176,6 +4503,322 @@ const AddFreelancerWork = async (req, res) => {
 // Suraj controller start
 
 // Create Role
+
+const getAllFreelancerBenefits = async (req, res) => {
+  try {
+    const benefits = await FreelancerBenefit.find();
+    res
+      .status(200)
+      .json({ result: true, msg: "Freelancer Benefits List", data: benefits });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error fetching Freelancer Benefits",
+      error: error.message,
+    });
+  }
+};
+
+const getFreelancerBenefitById = async (req, res) => {
+  try {
+    const benefit = await FreelancerBenefit.findById(req.query.id);
+    if (!benefit)
+      return res
+        .status(404)
+        .json({ result: false, msg: "Freelancer Benefit not found" });
+    res
+      .status(200)
+      .json({ result: true, msg: "Freelancer Benefit Detail", data: benefit });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error fetching Freelancer Benefit",
+      error: error.message,
+    });
+  }
+};
+
+const updateFreelancerBenefit = async (req, res) => {
+  try {
+    const { title, description } = req.body;
+    const icon =
+      req.files && req.files.image ? req.files.image[0].filename : null;
+
+    const benefit = await FreelancerBenefit.findByIdAndUpdate(
+      req.query.id,
+      { title, description, icon },
+      { new: true }
+    );
+    if (!benefit)
+      return res
+        .status(404)
+        .json({ result: false, msg: "Freelancer Benefit not found" });
+    res
+      .status(200)
+      .json({ result: true, msg: "Freelancer Benefit updated", data: benefit });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error updating Freelancer Benefit",
+      error: error.message,
+    });
+  }
+};
+
+const deleteFreelancerBenefit = async (req, res) => {
+  try {
+    const benefit = await FreelancerBenefit.findByIdAndDelete(req.query.id);
+    if (!benefit)
+      return res
+        .status(404)
+        .json({ result: false, msg: "Freelancer Benefit not found" });
+    res
+      .status(200)
+      .json({ result: true, msg: "Freelancer Benefit deleted", data: benefit });
+    res.status(200).json({ result: true, msg: "Freelancer Benefit deleted" });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error deleting Freelancer Benefit",
+      error: error.message,
+    });
+  }
+};
+
+const getAllBusinessBenefits = async (req, res) => {
+  try {
+    const benefits = await BusinessBenefit.find();
+    res
+      .status(200)
+      .json({ result: true, msg: "Business Benefits List", data: benefits });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error fetching Business Benefits",
+      error: error.message,
+    });
+  }
+};
+
+const getBusinessBenefitById = async (req, res) => {
+  try {
+    const benefit = await BusinessBenefit.findById(req.query.id);
+    if (!benefit)
+      return res
+        .status(404)
+        .json({ result: false, msg: "Business Benefit not found" });
+    res
+      .status(200)
+      .json({ result: true, msg: "Business Benefit Detail", data: benefit });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error fetching Business Benefit",
+      error: error.message,
+    });
+  }
+};
+
+const updateBusinessBenefit = async (req, res) => {
+  try {
+    const { title, description } = req.body;
+    const icon =
+      req.files && req.files.image ? req.files.image[0].filename : null;
+
+    const benefit = await BusinessBenefit.findByIdAndUpdate(
+      req.query.id,
+      { title, description, icon },
+      { new: true }
+    );
+    if (!benefit)
+      return res
+        .status(404)
+        .json({ result: false, msg: "Business Benefit not found" });
+    res
+      .status(200)
+      .json({ result: true, msg: "Business Benefit updated", data: benefit });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error updating Business Benefit",
+      error: error.message,
+    });
+  }
+};
+
+const deleteBusinessBenefit = async (req, res) => {
+  try {
+    const benefit = await BusinessBenefit.findByIdAndDelete(req.query.id);
+    if (!benefit)
+      return res
+        .status(404)
+        .json({ result: false, msg: "Business Benefit not found" });
+    res.status(200).json({ result: true, msg: "Business Benefit deleted" });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error deleting Business Benefit",
+      error: error.message,
+    });
+  }
+};
+
+const getAllCompanyBenefits = async (req, res) => {
+  try {
+    const benefits = await CompanyBenefit.find();
+    res
+      .status(200)
+      .json({ result: true, msg: "Company Benefits List", data: benefits });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error fetching Company Benefits",
+      error: error.message,
+    });
+  }
+};
+
+const getCompanyBenefitById = async (req, res) => {
+  try {
+    const benefit = await CompanyBenefit.findById(req.query.id);
+    if (!benefit)
+      return res
+        .status(404)
+        .json({ result: false, msg: "Company Benefit not found" });
+    res
+      .status(200)
+      .json({ result: true, msg: "Company Benefit Detail", data: benefit });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error fetching Company Benefit",
+      error: error.message,
+    });
+  }
+};
+
+const updateCompanyBenefit = async (req, res) => {
+  try {
+    const { title, description } = req.body;
+    const icon =
+      req.files && req.files.image ? req.files.image[0].filename : null;
+
+    const benefit = await CompanyBenefit.findByIdAndUpdate(
+      req.query.id,
+      { title, description, icon },
+      { new: true }
+    );
+    if (!benefit)
+      return res
+        .status(404)
+        .json({ result: false, msg: "Company Benefit not found" });
+    res
+      .status(200)
+      .json({ result: true, msg: "Company Benefit updated", data: benefit });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error updating Company Benefit",
+      error: error.message,
+    });
+  }
+};
+
+const deleteCompanyBenefit = async (req, res) => {
+  try {
+    const benefit = await CompanyBenefit.findByIdAndDelete(req.query.id);
+    if (!benefit)
+      return res
+        .status(404)
+        .json({ result: false, msg: "Company Benefit not found" });
+    res.status(200).json({ result: true, msg: "Company Benefit deleted" });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error deleting Company Benefit",
+      error: error.message,
+    });
+  }
+};
+
+const getAllIndividualBenefits = async (req, res) => {
+  try {
+    const benefits = await IndividualBenefit.find();
+    res
+      .status(200)
+      .json({ result: true, msg: "Individual Benefits List", data: benefits });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error fetching Individual Benefits",
+      error: error.message,
+    });
+  }
+};
+
+const getIndividualBenefitById = async (req, res) => {
+  try {
+    const benefit = await IndividualBenefit.findById(req.query.id);
+    if (!benefit)
+      return res
+        .status(404)
+        .json({ result: false, msg: "Individual Benefit not found" });
+    res
+      .status(200)
+      .json({ result: true, msg: "Individual Benefit Detail", data: benefit });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error fetching Individual Benefit",
+      error: error.message,
+    });
+  }
+};
+
+const updateIndividualBenefit = async (req, res) => {
+  try {
+    const { title, description } = req.body;
+    const icon =
+      req.files && req.files.image ? req.files.image[0].filename : null;
+
+    const benefit = await IndividualBenefit.findByIdAndUpdate(
+      req.query.id,
+      { title, description, icon },
+      { new: true }
+    );
+    if (!benefit)
+      return res
+        .status(404)
+        .json({ result: false, msg: "Individual Benefit not found" });
+    res
+      .status(200)
+      .json({ result: true, msg: "Individual Benefit updated", data: benefit });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error updating Individual Benefit",
+      error: error.message,
+    });
+  }
+};
+
+const deleteIndividualBenefit = async (req, res) => {
+  try {
+    const benefit = await IndividualBenefit.findByIdAndDelete(req.query.id);
+    if (!benefit)
+      return res
+        .status(404)
+        .json({ result: false, msg: "Individual Benefit not found" });
+    res.status(200).json({ result: true, msg: "Individual Benefit deleted" });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error deleting Individual Benefit",
+      error: error.message,
+    });
+  }
+};
+
 const createRole = async (req, res) => {
   try {
     const { role } = req.body;
@@ -4300,6 +4943,8 @@ const loginAdmin = async (req, res) => {
 
     res.status(200).json({ token, admin });
   } catch (err) {
+    console.log(err);
+
     res.status(500).json({ message: "Server error", error: err.message });
   }
 };
@@ -4388,6 +5033,374 @@ const deleteAdmin = async (req, res) => {
     res.status(500).json({ message: "Server error", error: err });
   }
 };
+
+const updateTopFreelancerStatus = async (req, res) => {
+  try {
+    const { userId, status } = req.body;
+
+    const user = await Auth.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        result: false,
+        msg: "Freelancer not found",
+      });
+    }
+
+    user.topFreelancer = status;
+    await user.save();
+
+    res.status(200).json({
+      result: true,
+      msg: `Top freelancer status updated to ${status}`,
+      data: user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Failed to update status",
+      error: error.message,
+    });
+  }
+};
+
+
+
+const CreateJobPositionCategory = async (req, res) => {
+  try {
+    const { name } = req.body;
+    const image =
+      req.files && req.files.image ? req.files.image[0].filename : null;
+
+    if (!name) {
+      return res.status(400).json({
+        result: false,
+        msg: "Parameter required: name, image",
+      });
+    }
+
+    const bann = new jobPositionCategory({
+      name,
+      image,
+    });
+    await bann.save();
+
+    res.status(200).json({
+      result: true,
+      msg: "Category Added Successfully",
+      data: bann,
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error adding admin market category",
+      error: error.message,
+    });
+  }
+};
+
+const getAllJobPositionCategory = async (req, res) => {
+  try {
+    const fatchcate = await jobPositionCategory.find().sort({ _id: -1 });
+
+    if (!fatchcate || fatchcate.length === 0) {
+      return res.status(200).json({
+        result: false,
+        msg: "No service categories found!",
+        data: [],
+      });
+    }
+
+    res.status(200).json({
+      result: true,
+      msg: "All Service Category List",
+      data: fatchcate,
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Server Error!",
+      error: error.message,
+    });
+  }
+};
+
+const UpdateJobPositionCategory = async (req, res) => {
+  try {
+    const { id, name } = req.body;
+    const image =
+      req.files && req.files.image ? req.files.image[0].filename : null;
+    if (!id) {
+      return res.status(400).json({
+        result: false,
+        msg: "Parameter required: id, optional( name, image )",
+      });
+    }
+
+    const fatchmarket = await jobPositionCategory.findById(id);
+    if (!fatchmarket) {
+      return res.status(404).json({
+        result: false,
+        msg: "Category Not Found!",
+      });
+    }
+
+    if (name) fatchmarket.name = name;
+    if (image) fatchmarket.image = image;
+    await fatchmarket.save();
+
+    res.status(200).json({
+      result: true,
+      msg: "Category Updated Successfully",
+      data: fatchmarket,
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error updating admin category",
+      error: error.message,
+    });
+  }
+};
+
+const JobPositionCategoryDetails = async (req, res) => {
+  try {
+    const { id } = req.query;
+
+    if (!id) {
+      return res.status(400).json({
+        result: false,
+        msg: "Parameter required: id",
+      });
+    }
+
+    const fatchmarket = await jobPositionCategory.findById(id);
+    if (!fatchmarket) {
+      return res.status(404).json({
+        result: false,
+        msg: "Category Not Found!",
+      });
+    }
+
+    res.status(200).json({
+      result: true,
+      msg: "Category Details Successfully",
+      data: fatchmarket,
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error details admin category",
+      error: error.message,
+    });
+  }
+};
+
+const DeleteJobPositionCategory = async (req, res) => {
+  try {
+    const { id } = req.query;
+
+    if (!id) {
+      return res.status(400).json({
+        result: false,
+        msg: "Parameter required: id",
+      });
+    }
+
+    const fatchmarket = await jobPositionCategory.findById(id);
+    if (!fatchmarket) {
+      return res.status(404).json({
+        result: false,
+        msg: "Market Category Not Found!",
+      });
+    }
+
+    await jobPositionCategory.findByIdAndDelete(id);
+
+    res.status(200).json({
+      result: true,
+      msg: "Category Deleted Successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error deleting admin category",
+      error: error.message,
+    });
+  }
+};
+
+
+
+const CreateJobPositionSubCategory = async (req, res) => {
+  try {
+    const { name, jobPositionCategoryId } = req.body;
+    const image =
+      req.files && req.files.image ? req.files.image[0].filename : null;
+
+    if (!name) {
+      return res.status(400).json({
+        result: false,
+        msg: "Parameter required: name, image",
+      });
+    }
+
+    const bann = new jobPositionSubCategory({
+      name,
+      image,
+      jobPositionCategoryId,
+    });
+    await bann.save();
+
+    res.status(200).json({
+      result: true,
+      msg: "Category Added Successfully",
+      data: bann,
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error adding admin market category",
+      error: error.message,
+    });
+  }
+};
+
+const getAllJobPositionSubCategory = async (req, res) => {
+  try {
+    const fatchcate = await jobPositionSubCategory.find().sort({ _id: -1 });
+
+    if (!fatchcate || fatchcate.length === 0) {
+      return res.status(200).json({
+        result: false,
+        msg: "No service categories found!",
+        data: [],
+      });
+    }
+
+    res.status(200).json({
+      result: true,
+      msg: "All Service Category List",
+      data: fatchcate,
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Server Error!",
+      error: error.message,
+    });
+  }
+};
+
+const UpdateJobPositionSubCategory = async (req, res) => {
+  try {
+    const { id, name, jobPositionCategoryId } = req.body;
+    const image =
+      req.files && req.files.image ? req.files.image[0].filename : null;
+    if (!id) {
+      return res.status(400).json({
+        result: false,
+        msg: "Parameter required: id, optional( name, image )",
+      });
+    }
+
+    const fatchmarket = await jobPositionSubCategory.findById(id);
+    if (!fatchmarket) {
+      return res.status(404).json({
+        result: false,
+        msg: "Category Not Found!",
+      });
+    }
+
+    if (name) fatchmarket.name = name;
+    if (image) fatchmarket.image = image;
+    if (jobPositionCategoryId) fatchmarket.jobPositionCategoryId = jobPositionCategoryId;
+    await fatchmarket.save();
+
+    res.status(200).json({
+      result: true,
+      msg: "Category Updated Successfully",
+      data: fatchmarket,
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error updating admin category",
+      error: error.message,
+    });
+  }
+};
+
+const JobPositionSubCategoryDetails = async (req, res) => {
+  try {
+    const { id } = req.query;
+
+    if (!id) {
+      return res.status(400).json({
+        result: false,
+        msg: "Parameter required: id",
+      });
+    }
+
+    const fatchmarket = await jobPositionSubCategory.findById(id);
+    if (!fatchmarket) {
+      return res.status(404).json({
+        result: false,
+        msg: "Service Category Not Found!",
+      });
+    }
+
+    res.status(200).json({
+      result: true,
+      msg: "Admin Service Category Details Successfully",
+      data: fatchmarket,
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error details admin category",
+      error: error.message,
+    });
+  }
+};
+
+const DeleteJobPositionSubCategory = async (req, res) => {
+  try {
+    const { id } = req.query;
+
+    if (!id) {
+      return res.status(400).json({
+        result: false,
+        msg: "Parameter required: id",
+      });
+    }
+
+    const fatchmarket = await jobPositionSubCategory.findById(id);
+    if (!fatchmarket) {
+      return res.status(404).json({
+        result: false,
+        msg: "Market Category Not Found!",
+      });
+    }
+
+    await jobPositionSubCategory.findByIdAndDelete(id);
+
+    res.status(200).json({
+      result: true,
+      msg: "Category Deleted Successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      result: false,
+      msg: "Error deleting admin category",
+      error: error.message,
+    });
+  }
+};
+
+
+
+
 
 // Suraj controller end
 
@@ -4518,4 +5531,44 @@ module.exports = {
   getAdminById,
   updateAdmin,
   deleteAdmin,
+  GetFreelancerHeadline,
+  GetBusinessHeadline,
+  GetCompanyHeadline,
+  GetIndividualHeadline,
+  AddOrUpdateFreelancerHeadline,
+  AddOrUpdateBusinessHeadline,
+  AddOrUpdateCompanyHeadline,
+  AddOrUpdateIndividualHeadline,
+
+  getAllFreelancerBenefits,
+  getAllBusinessBenefits,
+  getAllCompanyBenefits,
+  getAllIndividualBenefits,
+  getFreelancerBenefitById,
+  getBusinessBenefitById,
+  getCompanyBenefitById,
+  getIndividualBenefitById,
+  updateFreelancerBenefit,
+  updateBusinessBenefit,
+  updateCompanyBenefit,
+  updateIndividualBenefit,
+  deleteFreelancerBenefit,
+  deleteBusinessBenefit,
+  deleteCompanyBenefit,
+  deleteIndividualBenefit,
+  updateTopFreelancerStatus,
+
+
+  CreateJobPositionCategory,
+getAllJobPositionCategory,
+UpdateJobPositionCategory,
+JobPositionCategoryDetails,
+DeleteJobPositionCategory,
+CreateJobPositionSubCategory,
+getAllJobPositionSubCategory,
+UpdateJobPositionSubCategory,
+JobPositionSubCategoryDetails,
+DeleteJobPositionSubCategory,
+
+  
 };
